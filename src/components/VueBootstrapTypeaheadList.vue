@@ -66,9 +66,15 @@ export default {
         if (this.query.length === 0) {
           return text
         }
-        const re = new RegExp(this.escapedQuery, 'gi')
-
-        return text.replace(re, `<strong>$&</strong>`)
+        const re = new RegExp(this.escapedQuery, 'gi');
+        var highlightedText = text;
+        const splittedQuery = this.escapedQuery.split(' ');
+        for (let sq in splittedQuery) {
+          if (splittedQuery[sq].length > 0) {
+            highlightedText = highlightedText.replace(new RegExp('('+splittedQuery[sq]+')(?![^<]*>|[^<>]*</)', 'gi'), `<strong>$&</strong>`);
+          }
+        }
+        return highlightedText;
       }
     },
 
@@ -83,17 +89,7 @@ export default {
 
       const re = new RegExp(this.escapedQuery, 'gi')
 
-      // Filter, sort, and concat
-      return this.data
-        .filter(i => i.text.match(re) !== null)
-        .sort((a, b) => {
-          const aIndex = a.text.indexOf(a.text.match(re)[0])
-          const bIndex = b.text.indexOf(b.text.match(re)[0])
-
-          if (aIndex < bIndex) { return -1 }
-          if (aIndex > bIndex) { return 1 }
-          return 0
-        }).slice(0, this.maxMatches)
+      return this.data.slice(0, this.maxMatches)
     }
   },
 
